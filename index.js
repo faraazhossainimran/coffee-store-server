@@ -30,7 +30,38 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
-
+    // get a single specific coffee
+    app.get("/coffee/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await coffeeCollection.findOne(query);
+      res.send(result);
+    });
+    // update a single specific coffee using put
+    app.put("/coffee/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedCoffee = req.body;
+      const coffee = {
+        $set: {
+          name: updatedCoffee.name,
+          quantity: updatedCoffee.quantity,
+          supplier: updatedCoffee.supplier,
+          taste: updatedCoffee.taste,
+          category: updatedCoffee.category,
+          details: updatedCoffee.details,
+          photo: updatedCoffee.photo,
+        },
+      };
+      const result = await coffeeCollection.updateOne(
+        filter,
+        coffee,
+        options
+      );
+      console.log(result);
+      res.send(result);
+    });
     // added my code || post request
     app.post("/coffee", async (req, res) => {
       const newCoffee = req.body;
@@ -40,7 +71,7 @@ async function run() {
     });
     // Delete coffee form the database
     app.delete("/coffee/:id", async (req, res) => {
-        const id = req.params.id;
+      const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await coffeeCollection.deleteOne(query);
       console.log(query);
